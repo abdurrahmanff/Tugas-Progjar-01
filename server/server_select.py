@@ -45,9 +45,12 @@ try:
                         with open(PATH + filename, 'rb') as f:
                             while True:
                                 file_data = f.read(BUFFER_SIZE)
+                                sock.send(file_data)
+                                print(len(file_data))
                                 if not file_data:
                                     break
-                                sock.send(file_data)
+
+                        print('>> Kekirim')
 
                     except FileExistsError:
                         sock.send(NOT_FOUND.encode())
