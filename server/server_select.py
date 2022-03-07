@@ -29,10 +29,6 @@ try:
                 data = sock.recv(BUFFER_SIZE).decode('utf-8')
                 print('>> ' + data)
 
-                if data == 'exit':
-                    sock.close()
-                    input_socket.remove(sock)
-
                 if data.startswith('unduh'):
                     command, filename = data.split(' ')
                     try:
@@ -55,8 +51,12 @@ try:
                     except FileExistsError:
                         sock.send(NOT_FOUND.encode())
 
-                else:
+                elif data:
                     sock.send(WRONG_CMD.encode())
+
+                else:
+                    sock.close()
+                    input_socket.remove(sock)
 
 except KeyboardInterrupt:
     server_socket.close()
