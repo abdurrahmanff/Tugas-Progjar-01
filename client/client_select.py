@@ -1,4 +1,5 @@
 from math import ceil
+from tqdm import tqdm
 import os
 import socket
 import sys
@@ -17,6 +18,7 @@ try:
         command = str(input('Input command: '))
         client_socket.send(command.strip('\n').encode())
         received = client_socket.recv(BUFFER_SIZE).decode('utf-8')
+        client_socket.send(b'\x01')
         # print('>> ' + received)
         if received.startswith('filename'):
             z = received.split('\n')
@@ -26,14 +28,16 @@ try:
             n = ceil(int(filesize)/BUFFER_SIZE)
 
             with open(FOLDER_PATH + filename, 'wb') as f:
-                while n:
+                # temp = 0
+                for i in tqdm(range(n)):
                     file_data = client_socket.recv(BUFFER_SIZE)
-                    f.write(file_data)
-                    # print(len(file_data))
+                    client_socket.send(b'\x01')
+                    # temp += len(file_data)
+                    # print('progress ', len(file_data), ' | ', temp)
                     if not file_data:
                         # print('Kelar\n')
                         break
-                    n -= 1
+                    f.write(file_data)
 
             print('>> ' + filename + ' (' +
                   str(os.stat(FOLDER_PATH + filename).st_size)

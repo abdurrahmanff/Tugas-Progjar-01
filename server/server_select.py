@@ -20,50 +20,57 @@ input_socket = [server_socket]
 
 try:
     while True:
-        read_ready, write_ready, exception = select.select(
-            input_socket, [], [])
+        try:
+            read_ready, write_ready, exception = select.select(
+                input_socket, [], [])
 
-        for sock in read_ready:
-            if sock == server_socket:
-                client_socket, client_address = server_socket.accept()
-                input_socket.append(client_socket)
-                print(client_socket.getpeername(), '>> connected')
-
-            else:
-                data = sock.recv(BUFFER_SIZE).decode('utf-8')
-                # print('>> ' + data)
-
-                if data.startswith('unduh'):
-                    command, filename = data.split(' ')
-                    try:
-                        os.path.exists(FOLDER_PATH + filename)
-
-                        header = 'filename: ' + filename + '\nfilesize: ' + \
-                            str(os.stat(FOLDER_PATH + filename).st_size) + '\n\n'
-                        sock.send(header.encode())
-
-                        with open(FOLDER_PATH + filename, 'rb') as f:
-                            while True:
-                                file_data = f.read(BUFFER_SIZE)
-                                sock.send(file_data)
-                                # print(len(file_data))
-                                if not file_data:
-                                    break
-
-                        print(sock.getpeername(), '>> ' + filename + ' (' +
-                              str(os.stat(FOLDER_PATH + filename).st_size)
-                              + ' bytes) ' + 'sent successfully to')
-
-                    except FileNotFoundError:
-                        sock.send(NOT_FOUND.encode())
-
-                elif data:
-                    sock.send(WRONG_CMD.encode())
+            for sock in read_ready:
+                if sock == server_socket:
+                    client_socket, client_address = server_socket.accept()
+                    input_socket.append(client_socket)
+                    print(client_socket.getpeername(), '>> connected')
 
                 else:
-                    print(sock.getpeername(), '>> disconnected')
-                    sock.close()
-                    input_socket.remove(sock)
+                    data = sock.recv(BUFFER_SIZE).decode('utf-8')
+                    # print('>> ' + data)
+
+                    if data.startswith('unduh'):
+                        command, filename = data.split(' ')
+                        try:
+                            os.path.exists(FOLDER_PATH + filename)
+
+                            header = 'filename: ' + filename + '\nfilesize: ' + \
+                                str(os.stat(FOLDER_PATH + filename).st_size) + '\n\n'
+                            sock.send(header.encode())
+                            sock.recv(1)
+
+                            with open(FOLDER_PATH + filename, 'rb') as f:
+                                while True:
+                                    file_data = f.read(BUFFER_SIZE)
+                                    # print(len(file_data))
+                                    if not file_data:
+                                        break
+                                    sock.send(file_data)
+                                    sock.recv(1)
+
+                            print(sock.getpeername(), '>> ' + filename + ' (' +
+                                  str(os.stat(FOLDER_PATH + filename).st_size)
+                                  + ' bytes) ' + 'sent successfully')
+
+                        except FileNotFoundError:
+                            sock.send(NOT_FOUND.encode())
+                            sock.recv(1)
+
+                    elif data:
+                        sock.send(WRONG_CMD.encode())
+                        sock.recv(1)
+
+                    else:
+                        print(sock.getpeername(), '>> disconnected')
+                        sock.close()
+                        input_socket.remove(sock)
+        except ConnectionResetError:
+            continue
 
 except KeyboardInterrupt:
     server_socket.close()
