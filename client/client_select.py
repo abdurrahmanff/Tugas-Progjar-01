@@ -1,12 +1,16 @@
 from math import ceil
+import os
 import socket
 import sys
 
 FOLDER_PATH = 'client/download/'
 BUFFER_SIZE = 1024
-server_address = ('127.0.0.1', 5000)
+hostname = str(input('Insert server address: '))
+# hostname = '127.0.0.4'
+server_address = (hostname, 5000)
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(server_address)
+print('Connected. Press \'ctrl + c\' to stop')
 
 try:
     while True:
@@ -18,7 +22,7 @@ try:
             z = received.split('\n')
             x, filename = z[0].split(': ')
             y, filesize = z[1].split(': ')
-            print('>> ' + filename)
+            # print('>> ' + filename + ' (' + filesize + ' bytes)')
             n = ceil(int(filesize)/BUFFER_SIZE)
 
             with open(FOLDER_PATH + filename, 'wb') as f:
@@ -31,7 +35,9 @@ try:
                         break
                     n -= 1
 
-            print('>> Diterima')
+            print('>> ' + filename + ' (' +
+                  str(os.stat(FOLDER_PATH + filename).st_size)
+                  + ' bytes) ' + 'received successfully')
 
         else:
             print('>> Wrong command. Try "unduh [filename].[extension]"')
