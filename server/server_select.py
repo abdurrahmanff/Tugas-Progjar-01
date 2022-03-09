@@ -13,8 +13,7 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(server_address)
 server_socket.listen(5)
-print('Server', server_socket.getsockname(),
-      'Waiting for connection\n-----------')
+print('Server (20.212.58.178) Waiting for connection\n-----------------')
 
 input_socket = [server_socket]
 

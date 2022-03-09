@@ -3,4 +3,5 @@ client/download/*.mp4
 client/download/*.txt
 client/download/*.png
 client/download/*.html
-
+test_s.py
+test.py
