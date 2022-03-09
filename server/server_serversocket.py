@@ -1,6 +1,7 @@
 import os
 import socket
 import sys
+import datetime
 
 FOLDER_PATH = 'server/dataset/'
 BUFFER_SIZE = 1024
@@ -12,20 +13,20 @@ server_address = (socket.gethostbyname(socket.gethostname()), 5000)
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(server_address)
 server_socket.listen(5)
-print('Server (20.212.58.178) Waiting for connection\n-----------------')
+print('Server (zanyus.gcoder.me) Waiting for connection\n-----------------')
 
 # infinite loop accepting client
 try:
     while True:
         try:
             client_socket, client_address = server_socket.accept()
-            print(client_socket.getpeername(), '>> connected')
+            print(client_socket.getpeername(), '>> connected ', datetime.datetime.now())
 
             while True:
                 data = client_socket.recv(BUFFER_SIZE).decode('utf-8')
                 print(client_socket.getpeername(), '>> ' + data)
 
-                if data.startswith('unduh'):
+                if data.startswith('unduh '):
                     command, filename = data.split(' ')
                     try:
                         os.path.exists(FOLDER_PATH + filename)
@@ -60,7 +61,7 @@ try:
                     print(client_socket.getpeername(), '>> disconnected')
                     client_socket.close()
                     break
-        except ConnectionResetError:
+        except (ConnectionResetError, BrokenPipeError):
             continue
 
 # if user press ctrl + c, close socket client and exit
