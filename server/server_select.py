@@ -44,13 +44,11 @@ try:
                             sock.recv(1)
 
                             with open(FOLDER_PATH + filename, 'rb') as f:
-                                while True:
-                                    file_data = f.read(BUFFER_SIZE)
-                                    # print(len(file_data))
-                                    if not file_data:
-                                        break
-                                    sock.send(file_data)
-                                    sock.recv(1)
+                                file_data = f.read()
+                                # print(len(file_data))
+                                if not file_data:
+                                    break
+                                sock.sendall(file_data)
 
                             print(sock.getpeername(), '>> ' + filename + ' (' +
                                   str(os.stat(FOLDER_PATH + filename).st_size)

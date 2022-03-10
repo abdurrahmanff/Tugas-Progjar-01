@@ -20,11 +20,12 @@ try:
     while True:
         try:
             client_socket, client_address = server_socket.accept()
-            print(client_socket.getpeername(), '>> connected ', datetime.datetime.now())
+            print(client_socket.getpeername(),
+                  '>> connected ', datetime.datetime.now())
 
             while True:
                 data = client_socket.recv(BUFFER_SIZE).decode('utf-8')
-                print(client_socket.getpeername(), '>> ' + data)
+                # print(client_socket.getpeername(), '>> ' + data)
 
                 if data.startswith('unduh '):
                     command, filename = data.split(' ')
@@ -37,13 +38,11 @@ try:
                         client_socket.recv(1)
 
                         with open(FOLDER_PATH + filename, 'rb') as f:
-                            while True:
-                                file_data = f.read(BUFFER_SIZE)
-                                # print(len(file_data))
-                                if not file_data:
-                                    break
-                                client_socket.send(file_data)
-                                client_socket.recv(1)
+                            file_data = f.read()
+                            # print(len(file_data))
+                            if not file_data:
+                                break
+                            client_socket.sendall(file_data)
 
                         print(client_socket.getpeername(), '>> ' + filename + ' (' +
                               str(os.stat(FOLDER_PATH + filename).st_size)

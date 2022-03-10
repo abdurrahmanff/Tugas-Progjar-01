@@ -31,7 +31,7 @@ try:
                 # temp = 0
                 for i in tqdm(range(n)):
                     file_data = client_socket.recv(BUFFER_SIZE)
-                    client_socket.send(b'\x01')
+                    # client_socket.send(b'\x01')
                     # temp += len(file_data)
                     # print('progress ', len(file_data), ' | ', temp)
                     if not file_data:
